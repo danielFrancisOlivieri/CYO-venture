@@ -132,9 +132,10 @@ var nextEncounterIndex; // holds the index of where the next encounter is held
 
 function ifNextEncounter(nextTitle){
   //console.log(encounterArray);
-
+console.log(encounterArray);
   for (var i = 0; i < encounterArray.length; i++){
   console.log(encounterArray[i].title);
+  console.log(nextTitle);
   if(encounterArray[i].title == nextTitle) {
     console.log(encounterArray[i].title);
     nextEncounterIndex = i;
@@ -222,9 +223,9 @@ constructor(props){
 
       stealthStat: 0,
 
-      level: 0,
+      level: 1,
 
-      title: "root",
+      title: "0root",
 
       showModal: false,
 
@@ -251,7 +252,7 @@ handleInputChange(event) {
    this.setState({
      [name]: value
    });
-   console.log(this.state.userViolence);
+
  }
 
 
@@ -292,30 +293,36 @@ this.setEncounterToState(ourEncounter);
   }
 
 
-  escape = () => this.setState({
-    stealthStat: this.state.stealthStat + 1,
-   })
 
-talk = () => {
+  choose = (choiceType) => {
 
-  console.log("talking");
-
-  this.setState(
-  {
-  diplomacyStat: this.state.diplomacyStat + 1,
- })
-}
-
-  attack = () => {
-
+console.log(choiceType);
 // right off the bat, let's pump up the violence stat by once
 // you know, to get it out of the way early
     this.setState({
-    violenceStat: this.state.violenceStat + 1,
-    mostRecentChoice: "attack"
+    mostRecentChoice: choiceType
   })
+
+  console.log(this.state.mostRecentChoice);
+
+  if(choiceType == 'attack'){
+    this.setState({
+    violenceStat: this.state.violenceStat + 1
+  })
+  }
+  else if (choiceType == 'diplomacy'){
+    this.setState({
+    diplomacyStat: this.state.diplomacyStat + 1
+  })
+  }
+  else {
+    this.setState({
+    stealthStat: this.state.stealthStat + 1
+  })
+  }
+
   //  now let's find the title that our next encounter will have, if it exists
-  var title = nextTitle(this.state.title, this.state.level, 'attack');
+  var title = nextTitle(this.state.title, this.state.level, choiceType);
   console.log(title);
   console.log(encounterArray);
 
@@ -401,7 +408,7 @@ stealth: newEncounter.stealthText
           <Modal.Content image>
             <Modal.Description>
               <Header>You get to choose</Header>
-
+              <h3> Your last choice was to {this.state.mostRecentChoice}</h3>
 
             <Form>
     <TextArea autoHeight label="Write the Next Part" name='userNarrator' type="value" onChange={this.handleInputChange} placeholder='The goblin approaches you with a dagger in one hand and a copy of People magazine in the other.' />
@@ -465,7 +472,7 @@ stealth: newEncounter.stealthText
                   </Card.Content>
                   <Card.Content extra>
                     <div className='ui two buttons'>
-                      <Button basic color='green' onClick={this.attack} >Choose</Button>
+                      <Button basic color='green' onClick={() => this.choose('attack')} >Choose</Button>
                     </div>
                   </Card.Content>
                 </Card>
@@ -497,7 +504,7 @@ stealth: newEncounter.stealthText
                   </Card.Content>
                   <Card.Content extra>
                     <div className='ui two buttons'>
-                      <Button basic color='green' onClick={this.talk} >Choose</Button>
+                      <Button basic color='green' onClick={() => this.choose('diplomacy')} >Choose</Button>
                     </div>
                   </Card.Content>
                 </Card>
@@ -528,7 +535,7 @@ stealth: newEncounter.stealthText
                   </Card.Content>
                   <Card.Content extra>
                     <div className='ui two buttons'>
-                      <Button basic color='green' onClick={this.escape}>Choose</Button>
+                      <Button basic color='green' onClick={() => this.choose('stealth')}>Choose</Button>
                     </div>
                   </Card.Content>
                 </Card>
