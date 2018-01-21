@@ -374,22 +374,21 @@ stealth: newEncounter.stealthText
           <Segment
             inverted
             textAlign='center'
-            style={{ minHeight: 700, padding: '1em 0em'  }}
+            style={{ minHeight: 500, padding: '1em 0em', background: '#e63e26' }}
             vertical
           >
 
 
-            <Container text style={{color: '#D14F43'}} >
+            <Container text style={{}} >
               <Header
                 as='h1'
                 content='Adventure'
                 inverted
                 style={{ fontSize: '4em', fontWeight: 'normal', marginBottom: 0, marginTop: '.5em' }}
               />
-              <Segment.Group class="mainGroup">
-              <Image class="mainImage" src='http://originalmagicart.com/newsite/wp-content/uploads/2015/07/160285_-_Enthralling_Victor-1024x748.jpg' />
-
-              <Segment class="mainSegment" >
+              <Segment.Group class="mainGroup" inverted>
+            <i class="ra ra-all-for-one mainIcon"></i>
+              <Segment class="mainSegment" inverted >
                 {this.state.narratorText}
               </Segment>
               </Segment.Group>
