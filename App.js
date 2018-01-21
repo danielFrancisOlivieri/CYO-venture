@@ -1,3 +1,10 @@
+/*
+
+VENTURE
+A CROWD SOURCED CHOOSE YOUR OWN ADVENTURE
+WRITTEN BY DANIEL OLIVIERI
+
+*/
 import React, { Component } from 'react'
 import {
   Button,
@@ -7,9 +14,13 @@ import {
   Header,
   Icon,
   Image,
+  Input,
   List,
   Menu,
   Segment,
+  Form,
+  Select,
+  TextArea,
   Card,
   Modal,
   Statistic,
@@ -24,9 +35,148 @@ import './App.css'
 
 import { connect } from 'react-firebase'
 
-firebase.initializeApp({
-  databaseURL: 'https://venture-34bcf.firebaseio.com/'
-})
+import * as firebase from 'firebase'
+
+import './ModalScrolling'
+
+// set up firebase
+function setup() {
+  var config = {
+    apiKey: "AIzaSyBO2nChGpjC9nXjgxiceNj8RcuUb4tJL74",
+    authDomain: "venture-34bcf.firebaseapp.com",
+    databaseURL: "https://venture-34bcf.firebaseio.com",
+    projectId: "venture-34bcf",
+    storageBucket: "venture-34bcf.appspot.com",
+    messagingSenderId: "796085810718"
+  };
+  firebase.initializeApp(config);
+  console.log(firebase);
+}
+
+setup(); // sets up the firebase
+
+// prototype for an encounter
+function Encounter(narratorText1, violenceText1, diplomacyText1, stealthText1, title1) {
+
+    this.narratorText = narratorText1;
+    this.violenceText = violenceText1;
+    this.diplomacyText = diplomacyText1;
+    this.stealthText = stealthText1;
+    this.title = title1;
+}
+
+// we use this to hold the data we get from the modal box
+function UserInput(narratorText1, violenceText1, diplomacyText1, stealthText1){
+  this.narratorText = narratorText1;
+  this.violenceText = violenceText1;
+  this.diplomacyText = diplomacyText1;
+  this.stealthText = stealthText1;
+}
+
+// create new title along the specific guidlines
+
+  function nextTitle(currentTitle, level, choice) {
+    return currentTitle + level + choice;
+  }
+
+var newNarratorText = "A kobold throws an obsidian tipped spear at you.";
+
+var newViolenceText = "Dodge and shoot back with a crossbow.";
+
+var newDiplomacyText = "Tell him he will be sorry";
+
+var newStealthText = "Summon a ring of darkness around yourself.";
+
+var title = "1Attack";
+
+var newEncounter = new Encounter(newNarratorText, newViolenceText, newDiplomacyText, newStealthText, title);
+
+
+// database is our database
+var database = firebase.database();
+
+var encounters = database.ref('encounters');
+
+
+var encounterArray = [];
+
+function createNewRandomEncounter(){
+
+  var newNarratorText = "spleep";
+
+  var newViolenceText = "pulk";
+
+  var newDiplomacyText = "mork";
+
+  var newStealthText = "nozzle";
+
+  var title = "meep";
+
+  var newEncounter = new Encounter(newNarratorText, newViolenceText, newDiplomacyText, newStealthText, title);
+
+return newEncounter;
+
+}
+
+function createNewEncounter(newNarratorText, newViolenceText, newDiplomacyText, newStealthText, title) {
+
+// constructs
+var newEncounter = new Encounter(newNarratorText, newViolenceText, newDiplomacyText, newStealthText, title);
+// returns
+return newEncounter;
+
+}
+
+var nextEncounterIndex; // holds the index of where the next encounter is held
+
+
+function ifNextEncounter(nextTitle){
+  //console.log(encounterArray);
+
+  for (var i = 0; i < encounterArray.length; i++){
+  console.log(encounterArray[i].title);
+  if(encounterArray[i].title == nextTitle) {
+    console.log(encounterArray[i].title);
+    nextEncounterIndex = i;
+    return true;
+  }
+  }
+  return false;
+
+}
+
+encounters.push(createNewRandomEncounter());
+
+// create new array on state change
+
+encounters.ref.on("value", gotData, errData);
+
+
+function gotData(data) {
+console.log(data.val());
+  var encounters = data.val();
+  // Grab the keys to iterate over the object
+  var keys = Object.keys(encounters);
+
+  var key = keys[0];
+
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    // Look at each fruit object!
+    encounterArray[i] = encounters[key];
+
+  //  console.log(encounterArray[i]);
+  }
+
+}
+
+function errData(){
+  console.log("There was an error.");
+}
+
+
+
 
 
 
@@ -50,10 +200,161 @@ const FixedMenu = () => (
 )
 
 export default class HomepageLayout extends Component {
-  state = {}
+
+constructor(props){
+  super(props);
+  //   this.test = this.test.bind(this);
+
+     this.state = {
+
+      narratorText: "The elves advance on you with their bows trained.",
+
+      violence: "Pull out your machine gun and shoot them down.",
+
+      diplomacy: "Shout praises to them.",
+
+      stealth: "Hide in a neaby barrel",
+
+      violenceStat: 0,
+
+      diplomacyStat: 0,
+
+      stealthStat: 0,
+
+      level: 0,
+
+      title: "root",
+
+      showModal: false,
+
+      userNarrator: "A ring of angels appears before you and begins calling out your name.",
+
+      userViolence: "Draw your sword and attack.",
+
+      userDiplomacy: "Ask them how their day has been.",
+
+      userStealth: "Turn and run away.",
+
+      mostRecentChoice: "none"
+
+    };
+
+     this.handleInputChange = this.handleInputChange.bind(this);
+}
+
+handleInputChange(event) {
+   const target = event.target;
+   const value = target.value;
+   const name = target.name;
+
+   this.setState({
+     [name]: value
+   });
+   console.log(this.state.userViolence);
+ }
+
 
   hideFixedMenu = () => this.setState({ visible: false })
   showFixedMenu = () => this.setState({ visible: true })
+
+  // test
+
+   testing(){
+    console.log("I wish I were in shorebrook now");
+  }
+
+
+  setEncounterToState = (newEncounter) => this.setState({
+    level: this.state.level + 1,
+  narratorText: newEncounter.narratorText,
+  violence: newEncounter.violenceText,
+  diplomacy: newEncounter.diplomacyText,
+  stealth: newEncounter.stealthText,
+  title: newEncounter.title
+
+  })
+
+  submit = () => {
+
+//var theUserInput = new UserInput(this.state.userNarrator,this.state.userViolence,this.state.userStealth);
+
+var title = nextTitle(this.state.title, this.state.level, this.state.mostRecentChoice);
+console.log(title);
+var ourEncounter = createNewEncounter(this.state.userNarrator, this.state.userViolence, this.state.userDiplomacy, this.state.userStealth, title);
+console.log(ourEncounter);
+
+encounters.push(ourEncounter);
+
+this.setEncounterToState(ourEncounter);
+
+    this.setState({showModal: false});
+
+
+  }
+
+
+  escape = () => this.setState({
+    stealthStat: this.state.stealthStat + 1,
+   })
+
+talk = () => {
+
+  console.log("talking");
+
+  this.setState(
+  {
+  diplomacyStat: this.state.diplomacyStat + 1,
+ })
+}
+
+  attack = () => {
+
+// right off the bat, let's pump up the violence stat by once
+// you know, to get it out of the way early
+    this.setState({
+    violenceStat: this.state.violenceStat + 1,
+    mostRecentChoice: "attack"
+  })
+  //  now let's find the title that our next encounter will have, if it exists
+  var title = nextTitle(this.state.title, this.state.level, 'attack');
+
+
+  title = "urk"; // purely for testing purposes
+
+  console.log(encounterArray);
+
+  console.log(ifNextEncounter(title));
+
+//this determines if there is a next encounter
+  if(ifNextEncounter(title))
+  //if there is a next encounter
+  {
+    console.log(encounterArray[nextEncounterIndex]);
+
+    this.setEncounterToState(encounterArray[nextEncounterIndex]);
+
+
+  }
+  else // this is where we throw out a modal to get them to input the next encounter
+  {
+this.setState({ showModal: true });
+
+  }
+
+
+
+}
+
+    setNewEncounter = () => this.setState({
+    level: this.state.level + 1,
+violenceStat: this.state.violenceStat + 1,
+narratorText: newEncounter.narratorText,
+violence: newEncounter.violenceText,
+diplomacy: newEncounter.diplomacyText,
+stealth: newEncounter.stealthText
+  })
+
+  // when attack is clicked
 
   render() {
     const { visible } = this.state
@@ -86,17 +387,58 @@ export default class HomepageLayout extends Component {
               <Image class="mainImage" src='http://originalmagicart.com/newsite/wp-content/uploads/2015/07/160285_-_Enthralling_Victor-1024x748.jpg' />
 
               <Segment class="mainSegment" >
-                <p> The Enthralling Victor saunters forth. </p>
+                {this.state.narratorText}
               </Segment>
               </Segment.Group>
+
 
             </Container>
           </Segment>
         </Visibility>
 
+
+
         <Segment style={{ padding: '3em 0em' }} vertical>
+
+        <Modal open={this.state.showModal} onHide={this.submit}>
+          <Modal.Header>What Happens Next?</Modal.Header>
+          <Modal.Content image>
+            <Modal.Description>
+              <Header>You get to choose</Header>
+
+
+            <Form>
+    <TextArea autoHeight label="Write the Next Part" name='userNarrator' type="value" onChange={this.handleInputChange} placeholder='The goblin approaches you with a dagger in one hand and a copy of People magazine in the other.' />
+    <br></br>
+    <Form.Group widths='equal'>
+               <Form.Field name='userViolence' type="value" onChange={this.handleInputChange} control={Input} label='Violent Choice' placeholder='Pull out your ballista...' />
+               <Form.Field control={Input} name='userDiplomacy' type="value" label='Diplomatic Choice' onChange={this.handleInputChange} placeholder='Tell the goblin you like its earring...' />
+               <Form.Field control={Input} name='userStealth' type="value" label='Stealthy Choice' onChange={this.handleInputChange} placeholder='Take out your cape of invisibility...' />
+
+             </Form.Group>
+
+               </Form>
+            </Modal.Description>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button primary onClick={this.submit}>
+              Submit <Icon name='right chevron' />
+            </Button>
+          </Modal.Actions>
+        </Modal>
+
           <Grid container stackable verticalAlign='middle'>
             <Grid.Row centered>
+
+            <Divider
+              as='h4'
+              className='header'
+              horizontal
+              style={{ margin: '2em 0em', textTransform: 'uppercase' }}
+            >
+              <a>Choices</a>
+            </Divider>
+
 <center>
             <Card.Group style={{textAlign: 'left' }}>
                 <Card color='black'>
@@ -122,12 +464,12 @@ export default class HomepageLayout extends Component {
                     <p>  Increases your Violence </p>
                     </Card.Meta>
                     <Card.Description>
-                      Draw your dagger and stab them in the gut.
+                      {this.state.violence}
                     </Card.Description>
                   </Card.Content>
                   <Card.Content extra>
                     <div className='ui two buttons'>
-                      <Button basic color='green'>Choose</Button>
+                      <Button basic color='green' onClick={this.attack} >Choose</Button>
                     </div>
                   </Card.Content>
                 </Card>
@@ -154,12 +496,12 @@ export default class HomepageLayout extends Component {
                       Increases your Diplomacy
                     </Card.Meta>
                     <Card.Description>
-                      Begin a conversation.
+                    {this.state.diplomacy}
                     </Card.Description>
                   </Card.Content>
                   <Card.Content extra>
                     <div className='ui two buttons'>
-                      <Button basic color='green'>Choose</Button>
+                      <Button basic color='green' onClick={this.talk} >Choose</Button>
                     </div>
                   </Card.Content>
                 </Card>
@@ -185,12 +527,12 @@ export default class HomepageLayout extends Component {
                       Increases your Stealth
                     </Card.Meta>
                     <Card.Description>
-                      Scamper away down the hill.
+                    {this.state.stealth}
                     </Card.Description>
                   </Card.Content>
                   <Card.Content extra>
                     <div className='ui two buttons'>
-                      <Button basic color='green'>Choose</Button>
+                      <Button basic color='green' onClick={this.escape}>Choose</Button>
                     </div>
                   </Card.Content>
                 </Card>
@@ -208,7 +550,7 @@ export default class HomepageLayout extends Component {
               horizontal
               style={{ margin: '2em 0em', textTransform: 'uppercase' }}
             >
-              <a href='#'>Character Stats</a>
+              <a>Character Stats</a>
             </Divider>
 </Grid.Row>
 
@@ -217,19 +559,19 @@ export default class HomepageLayout extends Component {
 <Segment.Group horizontal>
 
    <Segment><Statistic>
-       <Statistic.Value>0</Statistic.Value>
+       <Statistic.Value>{this.state.violenceStat}</Statistic.Value>
        <Statistic.Label><i class="ra ra-sword ra-3x"></i></Statistic.Label>
 
      </Statistic></Segment>
 
 
    <Segment><Statistic>
-     <Statistic.Value>0</Statistic.Value>
+     <Statistic.Value>{this.state.diplomacyStat}</Statistic.Value>
      <Statistic.Label><i class="ra ra-scroll-unfurled ra-3x"></i></Statistic.Label>
 
    </Statistic></Segment>
    <Segment><Statistic>
-     <Statistic.Value>0</Statistic.Value>
+     <Statistic.Value>{this.state.stealthStat}</Statistic.Value>
      <Statistic.Label><i class="ra ra-nuclear ra-3x"></i></Statistic.Label>
    </Statistic></Segment>
  </Segment.Group>
