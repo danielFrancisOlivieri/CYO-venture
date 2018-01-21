@@ -145,7 +145,7 @@ function ifNextEncounter(nextTitle){
 
 }
 
-encounters.push(createNewRandomEncounter());
+//encounters.push(createNewRandomEncounter());
 
 // create new array on state change
 
@@ -154,6 +154,7 @@ encounters.ref.on("value", gotData, errData);
 
 function gotData(data) {
 console.log(data.val());
+if(data.val() != null ){
   var encounters = data.val();
   // Grab the keys to iterate over the object
   var keys = Object.keys(encounters);
@@ -165,8 +166,8 @@ console.log(data.val());
     var key = keys[i];
     // Look at each fruit object!
     encounterArray[i] = encounters[key];
+}
 
-  //  console.log(encounterArray[i]);
   }
 
 }
@@ -276,8 +277,6 @@ handleInputChange(event) {
 
   submit = () => {
 
-//var theUserInput = new UserInput(this.state.userNarrator,this.state.userViolence,this.state.userStealth);
-
 var title = nextTitle(this.state.title, this.state.level, this.state.mostRecentChoice);
 console.log(title);
 var ourEncounter = createNewEncounter(this.state.userNarrator, this.state.userViolence, this.state.userDiplomacy, this.state.userStealth, title);
@@ -317,10 +316,7 @@ talk = () => {
   })
   //  now let's find the title that our next encounter will have, if it exists
   var title = nextTitle(this.state.title, this.state.level, 'attack');
-
-
-  title = "urk"; // purely for testing purposes
-
+  console.log(title);
   console.log(encounterArray);
 
   console.log(ifNextEncounter(title));
